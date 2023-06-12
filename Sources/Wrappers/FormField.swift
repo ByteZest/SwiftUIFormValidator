@@ -10,6 +10,7 @@ public class FormField<Value, Validator: Validatable> where Value == Validator.V
     @Published
     private var value: Value
     private let validator: Validator
+    public let fieldName: String?
 
     public var projectedValue: AnyPublisher<Value, Never> {
         $value.eraseToAnyPublisher()
@@ -24,19 +25,22 @@ public class FormField<Value, Validator: Validatable> where Value == Validator.V
         }
     }
 
-    public init(wrappedValue value: Value, validator: () -> Validator) {
+    public init(wrappedValue value: Value, validator: () -> Validator, fieldName: String? = nil) {
         self.value = value
         self.validator = validator()
+        self.fieldName = fieldName
     }
 
-    public init(wrappedValue value: Value, validator: Validator) {
+    public init(wrappedValue value: Value, validator: Validator, fieldName: String? = nil) {
         self.value = value
         self.validator = validator
+        self.fieldName = fieldName
     }
 
-    public init(initialValue value: Value, validator: () -> Validator) {
+    public init(initialValue value: Value, validator: () -> Validator, fieldName: String? = nil) {
         self.value = value
         self.validator = validator()
+        self.fieldName = fieldName
     }
 
     public func validation(
@@ -51,14 +55,15 @@ public class FormField<Value, Validator: Validatable> where Value == Validator.V
                 validator: validator,
                 for: pub,
                 disableValidation: disableValidation,
-                onValidate: onValidate)
+                onValidate: onValidate,
+                fieldName: fieldName)
     }
 }
 
 public extension FormField where Validator == InlineValidator<Value> {
 
-    convenience init(wrappedValue value: Value, inlineValidator: @escaping (Value) -> String?) {
-        self.init(wrappedValue: value, validator: InlineValidator(condition: inlineValidator))
+    convenience init(wrappedValue value: Value, inlineValidator: @escaping (Value) -> String?, fieldName: String? = nil) {
+        self.init(wrappedValue: value, validator: InlineValidator(condition: inlineValidator), fieldName: fieldName)
     }
 
 }

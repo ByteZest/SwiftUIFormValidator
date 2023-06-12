@@ -11,6 +11,7 @@ public class PasswordFormField {
     @Published
     private var value: String
     private let message: PasswordMatchingMessage
+    private let fieldName: String?
 
     public var projectedValue: AnyPublisher<String, Never> {
         $value.eraseToAnyPublisher()
@@ -26,15 +27,17 @@ public class PasswordFormField {
     }
 
     public init(wrappedValue value: String,
-                message: @escaping @autoclosure PasswordMatchingMessage) {
+                message: @escaping @autoclosure PasswordMatchingMessage, fieldName: String? = nil) {
         self.value = value
         self.message = message
+        self.fieldName = fieldName
     }
 
     public init(initialValue value: String,
-                message: @escaping @autoclosure PasswordMatchingMessage) {
+                message: @escaping @autoclosure PasswordMatchingMessage, fieldName: String? = nil) {
         self.value = value
         self.message = message
+        self.fieldName = fieldName
     }
 
     public func validation(
@@ -67,6 +70,7 @@ public class PasswordFormField {
                 validator: validator,
                 for: merged,
                 disableValidation: disableValidation,
-                onValidate: onValidate)
+                onValidate: onValidate,
+        fieldName: fieldName)
     }
 }

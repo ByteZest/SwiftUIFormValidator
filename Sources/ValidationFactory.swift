@@ -33,9 +33,10 @@ public class ValidationFactory {
             validator: Validator,
             for publisher: AnyPublisher<Value, Never>,
             disableValidation: @escaping DisableValidationClosure,
-            onValidate: OnValidate?
+            onValidate: OnValidate?,
+            fieldName: String? = nil
     ) -> ValidationContainer where Validator.Value == Value {
-        manager.append(ValidatorContainer(validator: validator, disableValidation: disableValidation))
+        manager.append(ValidatorContainer(validator: validator, disableValidation: disableValidation, fieldName: fieldName))
         let pub: ValidationPublisher = publisher.map { value in
                     var val = validator
                     val.value = value

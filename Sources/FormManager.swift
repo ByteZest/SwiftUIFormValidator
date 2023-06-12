@@ -7,8 +7,9 @@ import Combine
 import Foundation
 
 public struct ValidatorContainer {
-    let validator: any Validatable
+    public var validator: any Validatable
     let disableValidation: DisableValidationClosure
+    let fieldName: String?
 }
 
 
@@ -105,6 +106,21 @@ public class FormManager: ObservableObject {
             }
         }
     }
+    
+    /// Checks if specific field is valid
+    ///
+    /// - Returns: Bool?
+    public func isValid(field: String) -> Bool? {
+        let validator = getValidatorByFieldName(field: field)
+        guard let validator = validator else { return nil }
+        
+        if validator.disableValidation() {
+            return nil
+        }
+        
+        return validator.validator.validate().isSuccess
+        
+    }
 
     /// Call this function to trigger form validation manually.
     ///
@@ -118,7 +134,42 @@ public class FormManager: ObservableObject {
         }
         return isAllValid()
     }
-
+    
+    public func getValidatorByFieldName(field: String) -> ValidatorContainer? {
+        return validators.first(where: {validator in validator.fieldName == field})
+    }
+    
+    public func triggerValidation(forFields: [String]) -> Bool {
+        var validCount: Int = 0
+        
+        for field in forFields {
+            if let validator = getValidatorByFieldName(field: field) {
+                validator.validator.triggerValidation(
+                    isDisabled: validator.disableValidation(),
+                    shouldShowError: validationType.shouldShowError())
+                if validator.validator.validate() == .success {
+                    validCount += 1
+                }
+            }
+        }
+        
+        return validCount == forFields.count
+    }
+    
+    public func areThoseValid(fields: [String]) -> Bool {
+        var validCount: Int = 0
+        
+        for field in fields {
+            if let validator = getValidatorByFieldName(field: field) {
+                if validator.validator.validate() == .success {
+                    validCount += 1
+                }
+            }
+        }
+        
+        return validCount == fields.count
+    }
+    
     public func errorsDescription() -> String {
         ErrorFormatter.format(errors: validationMessages)
     }
@@ -149,6 +200,4 @@ public extension FormManager {
             }
         }
     }
-
-
 }
