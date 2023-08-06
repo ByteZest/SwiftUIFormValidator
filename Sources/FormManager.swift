@@ -139,6 +139,12 @@ public class FormManager: ObservableObject {
         return validators.first(where: {validator in validator.fieldName == field})
     }
     
+    public func failForField(field: String, messages: [String]) {
+        if let field = getValidatorByFieldName(field: field) {
+            field.validator.failWithMessage(message: ErrorFormatter.format(errors: messages))
+        }
+    }
+    
     public func triggerValidation(forFields: [String]) -> Bool {
         var validCount: Int = 0
         

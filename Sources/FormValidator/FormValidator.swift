@@ -34,6 +34,7 @@ public protocol Validatable {
     /// Calls the subject to manually trigger validation.
     func triggerValidation(isDisabled: Bool, shouldShowError: Bool)
     func valueChanged(_ value: Validation)
+    func failWithMessage(message: String)
     mutating func observeChange(_ callback: @escaping OnValidationChange)
 }
 
@@ -50,6 +51,12 @@ public extension Validatable {
         } else {
             subject.send(.success)
         }
+        valueChanged(value)
+    }
+    
+    func failWithMessage(message: String) {
+        let value = Validation.failure(message: message)
+        subject.send(value)
         valueChanged(value)
     }
 
